@@ -24,7 +24,7 @@ ggplot(smelt2)+
   facet_wrap(~BroodYear)
 
 pal <- colorFactor(
-  palette = c("darkred", "yellow", "lightgreen", "skyblue"),
+  palette = c("darkred", "yellow", "lightgreen", "orange"),
   domain = smelt2$LifeStage
 )
 
@@ -39,5 +39,8 @@ map %>%
             title = "Lifestage",
             opacity = 1
   )
+
+smelt2 = mutate(smelt2, wildcultured = case_when(MarkCode == "None" ~ "Unmarked",
+                                                 TRUE ~ "Cultured"))
 
 save(smelt2, file = "Smelt2.RData")
