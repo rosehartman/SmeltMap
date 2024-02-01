@@ -13,8 +13,9 @@ library(tidyverse)
 library(deltamapr)
 library(sf)
 library(ggmap)
+library(here)
 
-load("Smelt2.RData")
+load(here("Smelt2.RData"))
 BYs <- unique(smelt2$BroodYear)
 Releases = unique(smelt2$ReleaseEvent)
 # Define UI for application that draws a histogram
@@ -40,6 +41,12 @@ ui <- fluidPage(
 server <- function(input, output) {
 
   
+  pal <- colorFactor(
+    palette = c("darkred", "yellow", "lightgreen", "skyblue"),
+    domain = smelt2$LifeStage
+  )
+  
+  
     output$smeltmap <- renderLeaflet({
    if(is.null(input$BroodYear)) Years = BYs else Years = input$BroodYear
     if(is.null(input$ReleaseEvent)) ReleaseE = Releases else ReleaseE = input$ReleaseEvent
@@ -52,13 +59,12 @@ server <- function(input, output) {
           addPolygons(data = WW_Delta, weight = .8, color = "grey", opacity =1) %>%
           addCircleMarkers(data=smeltdat, lng = smeltdat$LongitudeStart, lat = smeltdat$LatitudeStart,
                            label = ~Label, radius =5, opacity =0, fillOpacity = .8,
-                           fillColor = ifelse(test = smelt2$LifeStage == "Adult",  # if this...
-                                              yes = "red",  
-                                              no = ifelse(
-                                                test = smelt2$LifeStage == "Juvenile",  
-                                                yes = "blue",  
-                                                no = "yellow"  
-                                              )))
+                           fillColor = ~pal(LifeStage)) %>%
+          addLegend(data = smelt2, "bottomright", pal = pal, values = ~LifeStage,
+                    title = "Lifestage",
+                    opacity = 1
+          )
+        
         
     })
 }

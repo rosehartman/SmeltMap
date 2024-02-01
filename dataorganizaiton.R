@@ -23,18 +23,21 @@ ggplot(smelt2)+
   geom_sf(aes(color = LifeStage))+
   facet_wrap(~BroodYear)
 
+pal <- colorFactor(
+  palette = c("darkred", "yellow", "lightgreen", "skyblue"),
+  domain = smelt2$LifeStage
+)
+
 map <- leaflet() %>%
   addProviderTiles(providers$OpenStreetMap)
 map %>%
   addPolygons(data = WW_Delta, weight = .8, color = "grey", opacity =1) %>%
   addCircleMarkers(data=smelt2, lng = smelt2$LongitudeStart, lat = smelt2$LatitudeStart,
-                   label = ~ReleaseEvent, radius =5, opacity =0, fillOpacity = .8,
-                   fillColor = ifelse(test = smelt2$LifeStage == "Adult",  # if this...
-                     yes = "red",  
-                     no = ifelse(
-                       test = smelt2$LifeStage == "Juvenile",  
-                       yes = "blue",  
-                       no = "yellow"  
-                     )))
+                   label = ~ReleaseEvent, radius =5, opacity =0, fillOpacity = 1,
+                   fillColor = ~pal(LifeStage)) %>%
+  addLegend(data = smelt2, "bottomright", pal = pal, values = ~LifeStage,
+            title = "Lifestage",
+            opacity = 1
+  )
 
 save(smelt2, file = "Smelt2.RData")
