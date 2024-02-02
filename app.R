@@ -33,6 +33,9 @@ ui <- fluidPage(
     ),
         # map
         mainPanel(
+          title = "Map",
+          "This is a preliminary map of Delta Smelt catches. Data have not undergone quality controls. No garuntees", br(),
+          "Please contact Rosemary Hartman (Rosemary.Hartman@water.ca.gov) with questions",
           leafletOutput(outputId = 'smeltmap', height = 800)
         )
     ))
