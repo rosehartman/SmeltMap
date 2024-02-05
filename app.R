@@ -6,6 +6,7 @@
 #
 #    https://shiny.posit.co/
 #
+#dploy using library(rsconnect) deployApp()
 
 library(shiny)
 library(leaflet)
