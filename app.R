@@ -92,7 +92,7 @@ server <- function(input, output) {
         map %>%
           addPolygons(data = WW_Delta, weight = .8, color = "grey", opacity =1) %>%
           addCircleMarkers(data=smeltdat, lng = jitter(smeltdat$LongitudeStart, factor =5), lat = jitter(smeltdat$LatitudeStart, factor =2),
-                           label = ~Label, radius =5, opacity =0, fillOpacity = .8,
+                           label = ~Label, radius =5, opacity =0, fillOpacity = 1,
                            fillColor = ~pal(col)) %>%
           addLegend(data = smelt2, "bottomright", pal = pal, values = ~col,
                     title = input$Colorby,
