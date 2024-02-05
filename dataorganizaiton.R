@@ -14,7 +14,7 @@ smelt = read_excel("Running Delta Smelt Catch_2023-09-05.xlsx", sheet = "Delta S
 
 names(smelt)
 
-smelt2 = mutate(smelt, Year = year(SampleDate),
+smelt2 = mutate(smelt, Year = year(SampleDate), Month = month(SampleDate), MonthYear = paste(Year, Month),
                BroodYear = case_when(LifeStage %in% c("Adult", "Adult*") & yday(SampleDate) <200 ~ Year-1,
                                      TRUE ~ Year)) %>%
   st_as_sf(coords = c("LongitudeStart", "LatitudeStart"), crs = 4326, remove = FALSE) 
