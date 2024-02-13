@@ -51,12 +51,13 @@ conditionalPanel(condition = "input.Timeslider == 'Yes'",
           title = "Map",
           "This is a preliminary map of Delta Smelt catches. Data have not undergone quality controls. No garuntees", br(),
           "Please contact Rosemary Hartman (Rosemary.Hartman@water.ca.gov) with questions",
-          leafletOutput(outputId = 'smeltmap', height = 800)
+          leafletOutput(outputId = 'smeltmap', height = 600),
+          plotOutput(outputId = "salvage")
         ))
     )
 
 
-# Define server logic required to draw a histogram
+# Define server logic required to draw a map and bar graph
 server <- function(input, output) {
   
 
@@ -73,7 +74,7 @@ server <- function(input, output) {
   if(input$Colorby == "LifeStage"){
     col = smelt2$LifeStage
   pal <- colorFactor(
-    palette = c("darkred", "yellow", "lightgreen", "orange"),
+    palette = c("darkred", "yellow", "lightgreen"),
     domain = smelt2$LifeStage
   )
   } else {
@@ -126,6 +127,60 @@ server <- function(input, output) {
         
         
     })
+   
+   output$salvage <- renderPlot({
+
+     
+     if(is.null(input$BroodYear)) Years = BYs else Years = input$BroodYear
+     if(is.null(input$ReleaseEvent)) ReleaseE = Releases else ReleaseE = input$ReleaseEvent
+     if(input$Timeslider == "No") months = c(1:12) else months = input$Month
+     if(input$Timeslider == "No") years = c(min(smelt2$Year):max(smelt2$Year)) else years = input$Year
+     
+     #filter data of interest
+     smeltdatsal = filter(smelt2, 
+                          BroodYear %in% Years, 
+                       ReleaseEvent %in% ReleaseE, 
+                       Month %in% months, 
+                       Year %in% years)
+     
+     #join with months and years so there is a entry for each month and year
+     yearmonths = data.frame(Year = c(min(smelt2$Year):max(smelt2$Year))) %>%
+       merge(data.frame(Month = 1:12))
+     
+     smeltdatsal2 = full_join(smeltdatsal, yearmonths)
+     
+     #set up colors - there is probably a better way
+     if(is.null(input$Colorby)){
+       col = smeltdatsal2$LifeStage
+     } else {
+       if(input$Colorby == "LifeStage"){
+         col = factor(smeltdatsal2$LifeStage, levels = c("Adult", "Juvenile", "Larva"))
+       } else {
+         if(input$Colorby == "Release Type"){
+           col = smeltdatsal2$ReleaseMethod
+           
+         } else {
+           if(input$Colorby == "Survey") {
+             col = smeltdatsal2$Survey
+             
+           } else {
+             col = smeltdatsal2$wildcultured
+           }
+         }
+       }
+     }
+     
+     # Make a bar graph
+     smeltdatsal2$Monthx = factor(smeltdatsal2$Month, levels = 1:12, 
+                                  labels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+   ggplot(smeltdatsal2, aes(x = paste(Year, Monthx), fill = col))+ geom_bar()+ylab("Number of Fish")+
+  xlab("Year and Month")+ theme_bw()+scale_y_continuous(breaks = seq(0,nrow(smeltdatsal2), by =2))+
+     scale_fill_manual(values = c("darkred", "yellow", "lightgreen", "orange", "blue", "purple", "tan", "black", "darkgreen", "cyan", "red"))+
+     ggtitle("Catch over time")+ theme(axis.text.x = element_text(angle = 90))
+     
+     
+   })
+   
 }
 
 # Run the application 
