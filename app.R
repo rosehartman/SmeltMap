@@ -141,41 +141,51 @@ server <- function(input, output) {
                           BroodYear %in% Years, 
                        ReleaseEvent %in% ReleaseE, 
                        Month %in% months, 
-                       Year %in% years)
+                       Year %in% years) %>%
+       mutate(Nfish = 1)
      
      #join with months and years so there is a entry for each month and year
      yearmonths = data.frame(Year = c(min(smelt2$Year):max(smelt2$Year))) %>%
        merge(data.frame(Month = 1:12))
      
-     smeltdatsal2 = full_join(smeltdatsal, yearmonths)
+     smeltdatsal2 = full_join(smeltdatsal, yearmonths) %>%
+       mutate(Date = case_when(is.na(SampleDate)~ ymd(paste(Year, Month, 5)),
+                               TRUE ~ SampleDate),
+              shortdate = strftime(Date, "%Y/%m"),
+              Nfish = case_when(is.na(Nfish) ~ 0,
+                                TRUE ~ Nfish))
+     smeltdatave = group_by(smeltdatsal2, shortdate, LifeStage, Survey, wildcultured, ReleaseMethod) %>%
+       summarize(Nfish = sum(Nfish, na.rm =T))
+     
      
      #set up colors - there is probably a better way
      if(is.null(input$Colorby)){
-       col = smeltdatsal2$LifeStage
+       col = smeltdatave$LifeStage
      } else {
        if(input$Colorby == "LifeStage"){
-         col = factor(smeltdatsal2$LifeStage, levels = c("Adult", "Juvenile", "Larva"))
+         col = factor(smeltdatave$LifeStage, levels = c("Adult", "Juvenile", "Larva"))
        } else {
          if(input$Colorby == "Release Type"){
-           col = smeltdatsal2$ReleaseMethod
+           col = smeltdatave$ReleaseMethod
            
          } else {
            if(input$Colorby == "Survey") {
-             col = smeltdatsal2$Survey
+             col = smeltdatave$Survey
              
            } else {
-             col = smeltdatsal2$wildcultured
+             col = smeltdatave$wildcultured
            }
          }
        }
      }
      
      # Make a bar graph
-     smeltdatsal2$Monthx = factor(smeltdatsal2$Month, levels = 1:12, 
-                                  labels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
-   ggplot(smeltdatsal2, aes(x = paste(Year, Monthx), fill = col))+ geom_bar()+ylab("Number of Fish")+
+
+   ggplot(smeltdatave, aes(x = shortdate, fill = col, y = Nfish))+ geom_col()+ylab("Number of Fish")+
   xlab("Year and Month")+ theme_bw()+scale_y_continuous(breaks = seq(0,nrow(smeltdatsal2), by =2))+
-     scale_fill_manual(values = c("darkred", "yellow", "lightgreen", "orange", "blue", "purple", "tan", "black", "darkgreen", "cyan", "red"))+
+     scale_fill_manual(values = c("darkred", "yellow", "lightgreen", "orange",
+                                  "blue", "purple", "tan", "black", "darkgreen", "cyan", "red"),
+                       name = NULL)+
      ggtitle("Catch over time")+ theme(axis.text.x = element_text(angle = 90))
      
      
