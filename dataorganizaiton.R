@@ -10,8 +10,6 @@ library(httr)
 library(readxl)
 library(leaflet)
 
-library(httr)
-library(readxl)
 
 
 smelt = read_excel("Running Delta Smelt Catch_2023-09-05.xlsx", sheet = "Delta Smelt Catch Data")

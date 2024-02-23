@@ -52,7 +52,9 @@ conditionalPanel(condition = "input.Timeslider == 'Yes'",
           "This is a preliminary map of Delta Smelt catches. Data have not undergone quality controls. No garuntees", br(),
           "Please contact Rosemary Hartman (Rosemary.Hartman@water.ca.gov) with questions",
           leafletOutput(outputId = 'smeltmap', height = 600),
+          "*Note that locations are not precise, points have been moved slightly to avoid overlapping symbols",
           plotOutput(outputId = "salvage")
+
         ))
     )
 
@@ -151,12 +153,12 @@ server <- function(input, output) {
      smeltdatsal2 = full_join(smeltdatsal, yearmonths) %>%
        mutate(Date = case_when(is.na(SampleDate)~ ymd(paste(Year, Month, 5)),
                                TRUE ~ SampleDate),
-              shortdate = strftime(Date, "%Y/%m"),
+              shortdate = strftime(Date, "%Y-%m"),
               Nfish = case_when(is.na(Nfish) ~ 0,
-                                TRUE ~ Nfish))
+                                TRUE ~ Nfish)) %>%
+       filter(Date > ymd("2021-11-01"), Date < today())
      smeltdatave = group_by(smeltdatsal2, shortdate, LifeStage, Survey, wildcultured, ReleaseMethod) %>%
        summarize(Nfish = sum(Nfish, na.rm =T))
-     
      
      #set up colors - there is probably a better way
      if(is.null(input$Colorby)){
