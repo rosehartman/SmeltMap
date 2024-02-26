@@ -83,14 +83,14 @@ server <- function(input, output) {
     if(input$Colorby == "Release Type"){
       col = smelt2$ReleaseMethod
       pal <- colorFactor(
-        palette = c("darkred", "yellow", "lightgreen", "orange", "blue", "purple"),
+        palette = c("darkred", "yellow", "lightgreen", "orange", "blue", "purple", "tan", "cyan", "black", "red", "darkgreen"),
         domain = smelt2$ReleaseMethod
       )
     } else {
       if(input$Colorby == "Survey") {
         col = smelt2$Survey
         pal <- colorFactor(
-          palette = c("darkred", "yellow", "lightgreen", "orange", "blue", "purple", "tan", "black"),
+          palette = c("darkred", "yellow", "lightgreen", "orange", "blue", "purple", "tan", "cyan", "black","red", "darkgreen"),
           domain = smelt2$Survey)
           
       } else {
@@ -185,8 +185,7 @@ server <- function(input, output) {
 
    ggplot(smeltdatave, aes(x = shortdate, fill = col, y = Nfish))+ geom_col()+ylab("Number of Fish")+
   xlab("Year and Month")+ theme_bw()+scale_y_continuous(breaks = seq(0,nrow(smeltdatsal2), by =2))+
-     scale_fill_manual(values = c("darkred", "yellow", "lightgreen", "orange",
-                                  "blue", "purple", "tan", "black", "darkgreen", "cyan", "red"),
+     scale_fill_manual(values = c("darkred", "yellow", "lightgreen", "orange", "blue", "purple", "tan", "cyan", "black", "red", "darkgreen"),
                        name = NULL)+
      ggtitle("Catch over time")+ theme(axis.text.x = element_text(angle = 90))
      
