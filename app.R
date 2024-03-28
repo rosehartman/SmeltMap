@@ -49,7 +49,7 @@ conditionalPanel(condition = "input.Timeslider == 'Yes'",
         # map
         mainPanel(
           title = "Map",
-          "This is a preliminary map of Delta Smelt catches. Data have not undergone quality controls. No garuntees", br(),
+          "This is a preliminary map of Delta Smelt catches. Data have not undergone quality controls. No guarantees", br(),
           "Please contact Rosemary Hartman (Rosemary.Hartman@water.ca.gov) with questions",
           leafletOutput(outputId = 'smeltmap', height = 600),
           "*Note that locations are not precise, points have been moved slightly to avoid overlapping symbols",
@@ -66,50 +66,55 @@ server <- function(input, output) {
   
   
    output$smeltmap <- renderLeaflet({
-     if(is.null(input$Colorby)){
-       col = smelt2$LifeStage
-       pal <- colorFactor(
-         palette = c("darkred", "yellow", "lightgreen", "orange"),
-         domain = smelt2$LifeStage
-       )
-     } else {
-  if(input$Colorby == "LifeStage"){
-    col = smelt2$LifeStage
-  pal <- colorFactor(
-    palette = c("darkred", "yellow", "lightgreen"),
-    domain = smelt2$LifeStage
-  )
-  } else {
-    if(input$Colorby == "Release Type"){
-      col = smelt2$ReleaseMethod
-      pal <- colorFactor(
-        palette = c("darkred", "yellow", "lightgreen", "orange", "blue", "purple", "tan", "cyan", "black", "red", "darkgreen"),
-        domain = smelt2$ReleaseMethod
-      )
-    } else {
-      if(input$Colorby == "Survey") {
-        col = smelt2$Survey
-        pal <- colorFactor(
-          palette = c("darkred", "yellow", "lightgreen", "orange", "blue", "purple", "tan", "cyan", "black","red", "darkgreen"),
-          domain = smelt2$Survey)
-          
-      } else {
-        col = smelt2$wildcultured
-        pal <- colorFactor(
-          palette = c("darkred", "yellow"),
-          domain = smelt2$wildcultured) 
-      }
-    }
-  }
-     }
- 
-   if(is.null(input$BroodYear)) Years = BYs else Years = input$BroodYear
+       if(is.null(input$BroodYear)) Years = BYs else Years = input$BroodYear
     if(is.null(input$ReleaseEvent)) ReleaseE = Releases else ReleaseE = input$ReleaseEvent
     if(input$Timeslider == "No") months = c(1:12) else months = input$Month
     if(input$Timeslider == "No") years = c(min(smelt2$Year):max(smelt2$Year)) else years = input$Year
     smeltdat = filter(smelt2, BroodYear %in% Years, ReleaseEvent %in% ReleaseE, Month %in% months, Year %in% years) %>%
       mutate(Label = paste("FL=", ForkLength, "\n", SampleDate))
-        # Make a map
+    
+    
+    if(is.null(input$Colorby)){
+      col = smeltdat$LifeStage
+      pal <- colorFactor(
+        palette = c("darkred", "yellow", "lightgreen", "orange"),
+        levels =  sort(unique(smelt2$LifeStage))
+      )
+    } else {
+      if(input$Colorby == "LifeStage"){
+        col = smeltdat$LifeStage
+        pal <- colorFactor(
+          palette = c("darkred", "yellow", "lightgreen"),
+          levels = sort(unique(smelt2$LifeStage))
+        )
+      } else {
+        if(input$Colorby == "Release Type"){
+          col = smeltdat$ReleaseMethod
+          pal <- colorFactor(
+            palette = c("darkred", "yellow", "lightgreen", "orange", "blue", "purple", "tan", "cyan", "black"),
+            levels = sort(unique(smelt2$ReleaseMethod))
+          )
+        } else {
+          if(input$Colorby == "Survey") {
+            col = smeltdat$Survey
+            pal <- colorFactor(
+              palette = c("darkred", "yellow", "lightgreen", "orange", "blue", "purple", "tan", "cyan", "black","red", "darkgreen"),
+              levels = sort(unique(smelt2$Survey)))
+            
+          } else {
+            col = smeltdat$wildcultured
+            pal <- colorFactor(
+              palette = c("darkred", "yellow"),
+              levels = c("Cultured", "Unmarked") )
+          }
+        }
+      }
+    }
+    
+    
+    
+    
+         # Make a map
         map <- leaflet() %>%
           addProviderTiles(providers$OpenStreetMap) %>%
           addPolygons(data = WW_Delta, weight = .8, color = "grey", opacity =1) %>%
