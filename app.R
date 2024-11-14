@@ -49,7 +49,8 @@ conditionalPanel(condition = "input.Timeslider == 'Yes'",
         # map
         mainPanel(
           title = "Map",
-          "This is a preliminary map of Delta Smelt catches. Data have not undergone quality controls. No guarantees", br(),
+          "This is a preliminary map of Delta Smelt catches. Data have not undergone quality controls.", br(),
+          "No guarantees. In particular, larval smelt from brood year 2024 have not undergone genetic ID and some may be wakasagi", br(),
           "Please contact Rosemary Hartman (Rosemary.Hartman@water.ca.gov) with questions",
           leafletOutput(outputId = 'smeltmap', height = 600),
           "*Note that locations are not precise, points have been moved slightly to avoid overlapping symbols",
@@ -124,9 +125,11 @@ server <- function(input, output) {
         if(nrow(smeltdat) != 0) {
                   map %>%
          
-          addCircleMarkers(data=smeltdat, lng = jitter(smeltdat$LongitudeStart, factor =5), lat = jitter(smeltdat$LatitudeStart, factor =2),
-                           label = ~Label, radius =5, opacity =0, fillOpacity = 1,
-                           fillColor = ~pal(col))
+          addCircleMarkers(data=smeltdat, lng = jitter(smeltdat$LongitudeStart, factor =5), 
+                           lat = jitter(smeltdat$LatitudeStart, factor =2),
+                           label = ~Label, radius =5, opacity =1, weight =1,
+                           fillOpacity = 1,
+                           fillColor = ~pal(col), stroke = TRUE, color = "black")
           } else {
           map
         }
@@ -167,7 +170,7 @@ server <- function(input, output) {
      
      #set up colors - there is probably a better way
      if(is.null(input$Colorby)){
-       col = smeltdatave$LifeStage
+       col = factor(smeltdatave$LifeStage, levels = c("Adult", "Juvenile", "Larva"))
      } else {
        if(input$Colorby == "LifeStage"){
          col = factor(smeltdatave$LifeStage, levels = c("Adult", "Juvenile", "Larva"))
@@ -177,10 +180,12 @@ server <- function(input, output) {
            
          } else {
            if(input$Colorby == "Survey") {
-             col = smeltdatave$Survey
+             col = factor(smeltdatave$Survey, levels =c("CDFW 20-mm","CDFW Bay Study",  "CDFW SKT","CDFW SLS",        "CDFW Townet",    
+                                                       "DJFMP","FCCL Broodstock", "Skinner","TFCF",    "USFWS Chipps",   
+                                                        "USFWS EDSM"))
              
            } else {
-             col = smeltdatave$wildcultured
+             col = factor(smeltdatave$wildcultured, levels = c("Cultured", "Unmarked"))
            }
          }
        }
