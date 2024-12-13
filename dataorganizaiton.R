@@ -1,7 +1,7 @@
 #get the data
 library(tidyverse)
 library(lubridate)
-library(deltamapr)
+l#ibrary(deltamapr)
 library(sf)
 library(ggmap)
 library(readxl)
@@ -10,7 +10,9 @@ library(httr)
 library(readxl)
 library(leaflet)
 
+#WW_Delta = deltamapr::WW_Delta
 
+#save(WW_Delta, file = "WW_Delta.RData")
 
 smelt = read_excel("Running Delta Smelt Catch_2023-09-05.xlsx", sheet = "Delta Smelt Catch Data")
 

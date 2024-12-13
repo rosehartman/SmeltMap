@@ -11,12 +11,13 @@
 library(shiny)
 library(leaflet)
 library(tidyverse)
-library(deltamapr)
+#library(deltamapr)
 library(sf)
 library(ggmap)
 library(here)
 
 load(here("Smelt2.RData"))
+load(here("WW_Delta.RData"))
 BYs <- unique(smelt2$BroodYear)
 Releases = unique(smelt2$ReleaseEvent)
 
