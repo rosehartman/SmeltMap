@@ -123,21 +123,27 @@ server <- function(input, output) {
            addLegend(data = smelt2, "bottomright", pal = pal, values = ~col,
                     title = input$Colorby,
                     opacity = 1)
-        if(nrow(smeltdat) != 0) {
+        if(nrow(smeltdat) > 10) {
                   map %>%
          
-          addCircleMarkers(data=smeltdat, lng = jitter(smeltdat$LongitudeStart, factor =5), 
+          addCircleMarkers(data=smeltdat, lng = jitter(smeltdat$LongitudeStart, factor =2), 
                            lat = jitter(smeltdat$LatitudeStart, factor =2),
                            label = ~Label, radius =5, opacity =1, weight =1,
                            fillOpacity = 1,
                            fillColor = ~pal(col), stroke = TRUE, color = "black")
           } else {
-          map
-        }
-         
-        
-        
-    })
+            if(nrow(smeltdat) <10 & nrow(smeltdat) !=0) {
+            map %>%
+              
+              addCircleMarkers(data=smeltdat, lng = smeltdat$LongitudeStart, 
+                               lat = smeltdat$LatitudeStart,
+                               label = ~Label, radius =5, opacity =1, weight =1,
+                               fillOpacity = 1,
+                               fillColor = ~pal(col), stroke = TRUE, color = "black")
+          } else {
+            map
+          }
+          } })
    
    output$salvage <- renderPlot({
 
