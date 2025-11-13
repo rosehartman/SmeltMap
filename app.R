@@ -51,7 +51,8 @@ conditionalPanel(condition = "input.Timeslider == 'Yes'",
         mainPanel(
           title = "Map",
           "This is a preliminary map of Delta Smelt catches. Data have not undergone quality controls.", br(),
-          "No guarantees. In particular, larval smelt from brood year 2024 have not undergone genetic ID and some may be wakasagi", br(),
+          "No guarantees. In particular,larval smelt that have not undergone genetic ID are shown, but may be wakasagi or hybrids.", br(),
+          "Cultured fish released in 2025 were unmarked, and most adults caught after November 4 2025 were likely cultured.", br(),
           "Please contact Rosemary Hartman (Rosemary.Hartman@water.ca.gov) with questions",
           leafletOutput(outputId = 'smeltmap', height = 600),
           "*Note that locations are not precise, points have been moved slightly to avoid overlapping symbols",
@@ -100,14 +101,15 @@ server <- function(input, output) {
           if(input$Colorby == "Survey") {
             col = smeltdat$Survey
             pal <- colorFactor(
-              palette = c("darkred", "yellow", "lightgreen", "orange", "blue", "purple", "tan", "cyan", "black","red", "darkgreen"),
+              palette = c("darkred", "yellow", "lightgreen", "orange", "blue", "purple", "tan",
+                          "cyan", "black","red", "darkgreen", "navy"),
               levels = sort(unique(smelt2$Survey)))
             
           } else {
             col = smeltdat$wildcultured
             pal <- colorFactor(
-              palette = c("darkred", "yellow"),
-              levels = c("Cultured", "Unmarked") )
+              palette = c("darkred", "yellow", "blue"),
+              levels = c("Cultured", "Unmarked", "Unmarked - probably cultured") )
           }
         }
       }
@@ -180,7 +182,7 @@ server <- function(input, output) {
        col = factor(smeltdatave$LifeStage, levels = c("Adult", "Juvenile", "Larva"))
      } else {
        if(input$Colorby == "LifeStage"){
-         col = factor(smeltdatave$LifeStage, levels = c("Adult", "Juvenile", "Larva"))
+         col = factor(smeltdatave$LifeStage, levels = c("Adult", "Juvenile", "Larva", "Larva - unconfirmed"))
        } else {
          if(input$Colorby == "Release Type"){
            col = smeltdatave$ReleaseMethod
@@ -192,7 +194,7 @@ server <- function(input, output) {
                                                         "USFWS EDSM"))
              
            } else {
-             col = factor(smeltdatave$wildcultured, levels = c("Cultured", "Unmarked"))
+             col = factor(smeltdatave$wildcultured, levels = c("Cultured", "Unmarked", "Unmarked - probably cultured"))
            }
          }
        }
